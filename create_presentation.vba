@@ -65,7 +65,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Biological Inspiration and Artificial Neurons"
+    para.Text = "The Biological Inspiration: Neurons and Synapses"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -83,7 +83,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Architecture of a Neural Network"
+    para.Text = "Architecture of a Neural Network: Layers and Connections"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -173,7 +173,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Future Trends in Neural Networks"
+    para.Text = "The Future of Neural Networks"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -232,26 +232,26 @@ Sub CreatePresentation()
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The core concept of interconnected nodes (neurons)."
+    para.Text = "The concept of artificial intelligence and machine learning."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Neural networks as function approximators."
+    para.Text = "Neural networks as a subset of machine learning."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The power of learning from data."
+    para.Text = "Simple analogy to explain the basic function."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 4
     Set sld = ppt.Slides.Add(4, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Biological Inspiration and Artificial Neurons"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "The Biological Inspiration: Neurons and Synapses"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -259,38 +259,38 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Biological neurons and their functions."
+    para.Text = "Biological neurons and their function."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The structure of a biological neuron (dendrites, soma, axon)."
+    para.Text = "Synapses and signal transmission."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Simulating biological neurons with artificial neurons."
+    para.Text = "The connection to artificial neural networks."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The concept of weighted connections and activation functions."
+    para.Text = "How the brain's parallel processing inspires NN design."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The role of synapses in biological and artificial networks."
+    para.Text = "Limitations of the biological analogy."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 5
     Set sld = ppt.Slides.Add(5, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Architecture of a Neural Network"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Architecture of a Neural Network: Layers and Connections"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -310,19 +310,19 @@ Sub CreatePresentation()
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Output layer: Generating results."
+    para.Text = "Output layer: Producing results."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Different network architectures (feedforward, recurrent, convolutional)."
+    para.Text = "Weights and biases: Adjusting the network's behavior."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Understanding the flow of information through layers."
+    para.Text = "Activation functions: Introducing non-linearity."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
@@ -337,31 +337,31 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Feedforward Neural Networks (FNNs)."
+    para.Text = "Perceptrons: The simplest form."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Convolutional Neural Networks (CNNs) for image processing."
+    para.Text = "Multilayer Perceptrons (MLPs): Deeper networks."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Recurrent Neural Networks (RNNs) for sequential data."
+    para.Text = "Convolutional Neural Networks (CNNs): For image processing."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Long Short-Term Memory networks (LSTMs) for handling long sequences."
+    para.Text = "Recurrent Neural Networks (RNNs): For sequential data."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Autoencoders for dimensionality reduction and feature extraction."
+    para.Text = "Long Short-Term Memory (LSTM) networks:  Advanced RNNs for long sequences."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
@@ -382,25 +382,25 @@ Sub CreatePresentation()
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The role of cost functions and loss minimization."
+    para.Text = "Forward propagation: Calculating the output."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Gradient descent optimization algorithm."
+    para.Text = "Backpropagation: Calculating the error."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Backpropagation algorithm for adjusting weights."
+    para.Text = "Gradient descent: Adjusting weights and biases."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Overfitting and regularization techniques."
+    para.Text = "Loss functions: Measuring the error."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
@@ -415,7 +415,7 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Image recognition and object detection."
+    para.Text = "Image recognition and classification."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
@@ -427,19 +427,19 @@ Sub CreatePresentation()
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Speech recognition and synthesis."
+    para.Text = "Speech recognition."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Machine translation."
+    para.Text = "Self-driving cars."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Medical diagnosis and drug discovery."
+    para.Text = "Medical diagnosis."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
@@ -454,38 +454,38 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Advantages:  High accuracy, adaptability, ability to handle complex data."
+    para.Text = "Advantages: Powerful pattern recognition, adaptability, scalability."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Disadvantages:  Computational cost, ""black box"" nature, need for large datasets."
+    para.Text = "Disadvantages: Black box nature, data dependency, computational cost, overfitting."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Data dependency: Performance is highly dependent on the quality and quantity of data."
+    para.Text = "Addressing limitations through techniques like regularization and dropout."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Overfitting and underfitting issues."
+    para.Text = "The need for large datasets."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Interpretability challenges."
+    para.Text = "Computational resource requirements."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 10
     Set sld = ppt.Slides.Add(10, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Future Trends in Neural Networks"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "The Future of Neural Networks"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -493,31 +493,31 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Explainable AI (XAI) for increased transparency."
+    para.Text = "Advancements in deep learning."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Spiking Neural Networks (SNNs) for energy efficiency."
+    para.Text = "New architectures and algorithms."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Quantum neural networks for enhanced processing power."
+    para.Text = "Ethical considerations and responsible AI."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Neuromorphic computing hardware."
+    para.Text = "Potential breakthroughs in various fields."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Further advancements in deep learning techniques."
+    para.Text = "Ongoing research and development."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
@@ -538,19 +538,19 @@ Sub CreatePresentation()
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Recap of the power and limitations of neural networks."
+    para.Text = "Recap of the advantages and limitations."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Discussion of the exciting future of neural network research."
+    para.Text = "Emphasis on the transformative potential of neural networks."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Call to action: Encourage further exploration."
+    para.Text = "Call to action: Further exploration and learning."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14

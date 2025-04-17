@@ -1,5 +1,6 @@
 import os
 import re
+import traceback
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE_TYPE
@@ -161,18 +162,23 @@ def create_image_slide(prs, images_dir, page_number):
         print(f"Images directory not found: {images_dir}")
         return None
         
-    # Find all images for this page - check both PDF extraction format and topic generator format
+    # Find all images for this page - check both PDF extraction format and web image format
     slide_images = [f for f in os.listdir(images_dir) 
-                   if (f'page_{page_number}_img_' in f.lower() or f'topic_{page_number}_img_' in f.lower()) and 
+                   if (f'page_{page_number}_img_' in f.lower() or 
+                       f'topic_{page_number}_img_' in f.lower() or
+                       f'web_img_{page_number}_' in f.lower()) and 
                    any(f.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif'])]
     
     if not slide_images:
+        print(f"No images found for page {page_number}")
         return None
 
+    print(f"Found {len(slide_images)} images for page {page_number}")
+    
     # Get image titles from the titles file
     image_titles = get_image_titles()
     
-    # Sort images by their numbers - extract the number from different formats
+    # Sort images by their numbers
     def get_img_number(filename):
         if 'img_' in filename:
             match = re.search(r'img_(\d+)', filename)
@@ -182,102 +188,29 @@ def create_image_slide(prs, images_dir, page_number):
     
     slide_images.sort(key=get_img_number)
     
-    # Check for extracted text for this page to get better title
-    page_text = ""
-    extracted_text_path = os.path.join('extract', f'pdf_page_{page_number}.txt')
-    if not os.path.exists(extracted_text_path):
-        # Try alternative naming patterns
-        pdf_files = [f for f in os.listdir('extract') if f.endswith(f'_page_{page_number}.txt')]
-        if pdf_files:
-            extracted_text_path = os.path.join('extract', pdf_files[0])
-    
-    if os.path.exists(extracted_text_path):
-        with open(extracted_text_path, 'r', encoding='utf-8') as f:
-            page_text = f.read()
-    
+    # Create a new slide for images
     slide_layout = prs.slide_layouts[6]  # Blank layout
     slide = prs.slides.add_slide(slide_layout)
     
-    # Try to extract a meaningful title from the page text or image titles
-    title_text = ""
+    # Add title to the slide
+    title_text = f"Visual Content for Section {page_number}"
     
-    # First, check image titles for good titles
+    # Try to get a better title from image titles
     for img_file in slide_images:
-        # Handle both PDF extraction and topic generator formats
+        img_key = None
         if 'page_' in img_file:
             img_index = re.search(r'img_(\d+)', img_file).group(1)
             img_key = f"page_{page_number}_img_{img_index}"
         elif 'topic_' in img_file:
             img_index = re.search(r'img_(\d+)', img_file).group(1)
             img_key = f"page_{page_number}_img_{img_index}"
-        else:
-            continue
+        elif 'web_img_' in img_file:
+            img_index = re.search(r'web_img_\d+_(\d+)', img_file).group(1)
+            img_key = f"page_{page_number}_img_{img_index}"
             
-        if img_key in image_titles and image_titles[img_key] and len(image_titles[img_key]) > 5:
-            # This seems like a real title, not just "Figure X"
-            if not image_titles[img_key].lower().startswith("figure"):
-                title_text = image_titles[img_key]
-                break
-    
-    # If no good title from image titles, try to extract from page text
-    if not title_text and page_text:
-        # Look for section titles or headers in the text
-        title_patterns = [
-            r'(?:^|\n)((?:[A-Z][a-z]*\s*){1,6}(?:Figures|Figure|Images|Charts|Diagrams|Illustrations))(?:\n|:)',
-            r'(?:^|\n)(\d+\.\d+\s+(?:[A-Z][a-z]*\s*){1,6})(?:\n|:)',  # Section numbers like 2.1 Title
-            r'(?:^|\n)((?:[A-Z][a-z]*\s*){2,6})(?:\n)',  # Capitalized phrases
-        ]
-        
-        for pattern in title_patterns:
-            matches = re.finditer(pattern, page_text)
-            for match in matches:
-                candidate = match.group(1).strip()
-                if 4 < len(candidate) < 60:  # Reasonable title length
-                    title_text = candidate
-                    break
-            if title_text:
-                break
-    
-    # For topic generator, if we still don't have a good title, use a topic-related title
-    if not title_text and any('topic_' in img for img in slide_images):
-        title_text = "Visual Content"
-        # Try to extract topic from image titles
-        for img_key, img_title in image_titles.items():
-            if not img_title.startswith("Figure"):
-                title_text = f"Visual Content: {img_title}"
-                break
-                
-    # If still no good title, try specific image-related text
-    if not title_text and page_text:
-        # Look for image references in text
-        img_ref_patterns = [
-            r'(?:Figure|Fig\.|Image|Diagram|Chart)\s*\d+[:\.\s]+([^\n\.]{10,60})',
-            r'(?:see|in|the)\s+(?:figure|image|diagram|chart|illustration)\s+([^\n\.]{10,60})'
-        ]
-        
-        for pattern in img_ref_patterns:
-            matches = re.finditer(pattern, page_text, re.IGNORECASE)
-            for match in matches:
-                candidate = match.group(1).strip()
-                if candidate:
-                    title_text = candidate
-                    break
-            if title_text:
-                break
-                
-    # Final fallback if we still don't have a good title
-    if not title_text:
-        # Try to get the first sentence or phrase from the page
-        if page_text:
-            lines = [line.strip() for line in page_text.split('\n') if line.strip()]
-            for line in lines:
-                if 10 < len(line) < 100 and not line.startswith('•'):
-                    title_text = line
-                    break
-        
-        # If still nothing, use the default
-        if not title_text:
-            title_text = f"Visual Content for Section {page_number}"
+        if img_key and img_key in image_titles:
+            title_text = image_titles[img_key]
+            break
     
     # Add the title to the slide
     title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
@@ -302,11 +235,19 @@ def create_image_slide(prs, images_dir, page_number):
     for idx, image_file in enumerate(slide_images):
         image_path = os.path.join(images_dir, image_file)
         try:
+            print(f"Processing image: {image_file}")
+            
+            # Calculate position
             row = idx // 2
             col = idx % 2
             left = left_margin + (col * (img_width + Inches(0.5)))
-            top = top_margin + (row * (img_height + Inches(0.7)))  # Extra space for caption
+            top = top_margin + (row * (img_height + Inches(0.7)))
             
+            # Verify image exists
+            if not os.path.exists(image_path):
+                print(f"Image file not found: {image_path}")
+                continue
+                
             # Add the image
             pic = slide.shapes.add_picture(
                 image_path,
@@ -315,24 +256,28 @@ def create_image_slide(prs, images_dir, page_number):
                 width=img_width,
                 height=img_height
             )
+            print(f"Added image to slide: {image_file}")
             
-            # Add a caption below the image
-            # Handle both formats
+            # Get image title
+            img_key = None
             if 'page_' in image_file:
                 img_index = re.search(r'img_(\d+)', image_file).group(1)
                 img_key = f"page_{page_number}_img_{img_index}"
             elif 'topic_' in image_file:
                 img_index = re.search(r'img_(\d+)', image_file).group(1)
                 img_key = f"page_{page_number}_img_{img_index}"
-            else:
-                img_key = None
-                
-            caption_text = f"Figure {idx+1}"  # Default caption
+            elif 'web_img_' in image_file:
+                img_index = re.search(r'web_img_\d+_(\d+)', image_file).group(1)
+                img_key = f"page_{page_number}_img_{img_index}"
+            
+            # Set caption text
+            caption_text = f"Figure {idx+1}"
             if img_key and img_key in image_titles:
                 caption_text = image_titles[img_key]
-                
+            
+            # Add caption
             caption = slide.shapes.add_textbox(
-                left=left, 
+                left=left,
                 top=top + img_height + Inches(0.1),
                 width=img_width,
                 height=Inches(0.5)
@@ -344,9 +289,11 @@ def create_image_slide(prs, images_dir, page_number):
             caption_frame.paragraphs[0].font.size = Pt(10)
             caption_frame.paragraphs[0].font.italic = True
             
-            print(f"Added image: {image_file} with caption: {caption_text}")
+            print(f"Added caption: {caption_text}")
+            
         except Exception as e:
             print(f"Error adding image {image_file}: {str(e)}")
+            traceback.print_exc()
     
     return slide
 
@@ -408,15 +355,10 @@ def create_bullet_slide(prs, slide_title, bullet_points, format_type='standard')
                 # Get paragraph properties
                 pPr = p._pPr
                 
-                # Add bullet character and properties
-                buNone = pPr.get_or_add_buNone()
-                buChar = pPr.get_or_add_buChar()
-                buChar.char = "•"
-                
-                # Set bullet font properties
-                buFont = pPr.get_or_add_buFont()
-                buFont.sz = 1800  # 18pt in hundredths of a point
-                buFont.color.rgb = RGBColor(0, 0, 0)
+                # Set bullet properties using PowerPoint's built-in formatting
+                pPr.get_or_add_buNone()  # Clear any existing bullet format
+                pPr.get_or_add_buFont()  # Add bullet font
+                pPr.get_or_add_buAutoNum()  # Add auto-numbering properties
                 
                 # Set bullet position and indentation
                 pPr.marL = 342900  # Left margin for bullet points (0.95cm)
@@ -424,7 +366,7 @@ def create_bullet_slide(prs, slide_title, bullet_points, format_type='standard')
                 pPr.lvl = 0  # First level bullet
                 
             except Exception as e:
-                print(f"Warning: Could not add bullet to point: {point_text[:30]}... Error: {str(e)}")
+                print(f"Warning: Could not set bullet properties for point: {point_text[:30]}...")
     
     return slide
 
@@ -681,7 +623,36 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
         except:
             pass
     
-    # Create content slides
+    # Get all images and categorize them
+    images_dir = os.path.join('extract', 'images')
+    pdf_images = {}  # Dictionary to store PDF images by page number
+    unmapped_images = []  # List to store all images that can't be mapped
+    used_images = set()  # Keep track of which images have been used
+    
+    if os.path.exists(images_dir):
+        try:
+            for img_file in os.listdir(images_dir):
+                if any(img_file.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif']):
+                    # Check if it's a PDF-extracted image with valid page number
+                    pdf_match = re.search(r'page_(\d+)_img_(\d+)', img_file)
+                    if pdf_match:
+                        page_num = int(pdf_match.group(1))
+                        # Only map images to valid slide numbers
+                        if 3 <= page_num <= len(slides_data) + 2:  # +2 for title and index slides
+                            if page_num not in pdf_images:
+                                pdf_images[page_num] = []
+                            pdf_images[page_num].append(img_file)
+                        else:
+                            unmapped_images.append(img_file)
+                    else:
+                        unmapped_images.append(img_file)
+            
+            print(f"Found {sum(len(images) for images in pdf_images.values())} mapped PDF images and {len(unmapped_images)} unmapped images")
+        except Exception as e:
+            print(f"Error processing images directory: {str(e)}")
+            traceback.print_exc()
+
+    # Create content slides with their mapped PDF images
     print("\nCreating content slides...")
     for slide_num, slide_data in enumerate(slides_data[2:], start=3):
         print(f"\nProcessing slide {slide_num}...")
@@ -699,124 +670,164 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
         print(f"Creating bullet slide: {slide_title}")
         slide = create_bullet_slide(prs, slide_title, bullet_points, format_type)
         
-        # Check for images for this slide/page
-        images_dir = os.path.join('extract', 'images')
-        print(f"\nChecking for images in: {images_dir}")
-        
-        if os.path.exists(images_dir):
-            try:
-                # Look for images for this slide/page
-                slide_images = [f for f in os.listdir(images_dir) 
-                              if f'page_{slide_num}_img_' in f.lower() and 
-                              any(f.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif'])]
-                
-                print(f"Found {len(slide_images)} images for slide {slide_num}")
-                
-                if slide_images:
-                    # Sort images by their index number
-                    def get_image_index(filename):
-                        match = re.search(r'img_(\d+)', filename)
-                        return int(match.group(1)) if match else 0
-                    slide_images.sort(key=get_image_index)
+        # Add PDF images for this slide if they exist
+        if slide_num in pdf_images and pdf_images[slide_num]:
+            print(f"Adding {len(pdf_images[slide_num])} PDF images for slide {slide_num}")
+            
+            # Create image slide
+            image_slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
+            
+            # Add title
+            title_box = image_slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
+            title_frame = title_box.text_frame
+            title_frame.text = f"{slide_title} - Visual Content"
+            title_frame.paragraphs[0].font.size = Pt(32)
+            title_frame.paragraphs[0].font.bold = True
+            
+            # Calculate layout based on number of images
+            if len(pdf_images[slide_num]) == 1:
+                img_width = Inches(8)
+                img_height = Inches(4.5)
+                left = Inches(1)
+                top = Inches(1.5)
+            else:
+                img_width = Inches(4)
+                img_height = Inches(3)
+                images_per_row = 2
+            
+            # Add images
+            for idx, img_file in enumerate(sorted(pdf_images[slide_num])):
+                try:
+                    image_path = os.path.join(images_dir, img_file)
+                    print(f"Adding mapped PDF image: {image_path}")
                     
-                    # Create multiple slides if needed (2 images per slide)
-                    for i in range(0, len(slide_images), 2):
-                        # Create a new slide for images
-                        print(f"Creating image slide {i//2 + 1} for slide {slide_num}")
-                        image_slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
-                        
-                        # Add title to image slide
-                        title_box = image_slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
-                        title_frame = title_box.text_frame
-                        if len(slide_images) > 2:
-                            title_frame.text = f"{slide_title} - Visual Content (Part {i//2 + 1})"
-                        else:
-                            title_frame.text = f"{slide_title} - Visual Content"
-                        title_frame.paragraphs[0].font.size = Pt(32)
-                        title_frame.paragraphs[0].font.bold = True
-                        
-                        # Get current batch of images (up to 2)
-                        current_images = slide_images[i:i+2]
-                        
-                        # Calculate image layout
-                        if len(current_images) == 1:
-                            img_width = Inches(8)
-                            img_height = Inches(4.5)
-                            left = Inches(1)
-                            top = Inches(1.5)
-                        else:
-                            img_width = Inches(4)
-                            img_height = Inches(3)
-                            images_per_row = 2
-                            
-                        for idx, img_file in enumerate(current_images):
-                            try:
-                                image_path = os.path.join(images_dir, img_file)
-                                print(f"Adding image: {image_path}")
-                                
-                                if len(current_images) > 1:
-                                    row = idx // images_per_row
-                                    col = idx % images_per_row
-                                    left = Inches(1 + col * 4.5)
-                                    top = Inches(1.5 + row * 3.5)
-                                
-                                # Verify image file exists
-                                if not os.path.exists(image_path):
-                                    print(f"Image file not found: {image_path}")
-                                    continue
-                                    
-                                # Add image
-                                pic = image_slide.shapes.add_picture(
-                                    image_path,
-                                    left=left,
-                                    top=top,
-                                    width=img_width,
-                                    height=img_height
-                                )
-                                print(f"Successfully added image to slide")
-                                
-                                # Get image title
-                                img_index = re.search(r'img_(\d+)', img_file).group(1)
-                                img_key = f"page_{slide_num}_img_{img_index}"
-                                
-                                # Read image titles
-                                titles_file = os.path.join('extract', 'image_titles.txt')
-                                caption_text = f"Figure {img_index}"
-                                if os.path.exists(titles_file):
-                                    print(f"Reading image titles from: {titles_file}")
-                                    with open(titles_file, 'r', encoding='utf-8') as f:
-                                        for line in f:
-                                            if line.startswith(img_key):
-                                                caption_text = line.split('|')[1].strip()
-                                                print(f"Found caption: {caption_text}")
-                                                break
-                                
-                                # Add caption
-                                caption = image_slide.shapes.add_textbox(
-                                    left=left,
-                                    top=top + img_height + Inches(0.1),
-                                    width=img_width,
-                                    height=Inches(0.3)
-                                )
-                                caption_frame = caption.text_frame
-                                caption_frame.text = caption_text
-                                caption_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-                                caption_frame.paragraphs[0].font.size = Pt(10)
-                                caption_frame.paragraphs[0].font.italic = True
-                                print(f"Added caption to image")
-                                
-                            except Exception as e:
-                                print(f"Error adding image {img_file} to slide {slide_num}: {str(e)}")
-                                import traceback
-                                traceback.print_exc()
-                else:
-                    print("No images found for this slide")
-            except Exception as e:
-                print(f"Error processing images for slide {slide_num}: {str(e)}")
-                import traceback
-                traceback.print_exc()
-        else:
-            print(f"Images directory not found: {images_dir}")
+                    if len(pdf_images[slide_num]) > 1:
+                        row = idx // images_per_row
+                        col = idx % images_per_row
+                        left = Inches(1 + col * 4.5)
+                        top = Inches(1.5 + row * 3.5)
+                    
+                    # Add image
+                    pic = image_slide.shapes.add_picture(
+                        image_path,
+                        left=left,
+                        top=top,
+                        width=img_width,
+                        height=img_height
+                    )
+                    used_images.add(img_file)
+                    
+                    # Get image title from image_titles.txt if available
+                    titles_file = os.path.join('extract', 'image_titles.txt')
+                    caption_text = None
+                    if os.path.exists(titles_file):
+                        with open(titles_file, 'r', encoding='utf-8') as f:
+                            for line in f:
+                                if img_file.split('.')[0] in line:
+                                    caption_text = line.split('|')[1].strip()
+                                    break
+                    
+                    if not caption_text:
+                        caption_text = f"Figure {idx + 1}"
+                    
+                    # Add caption
+                    caption = image_slide.shapes.add_textbox(
+                        left=left,
+                        top=top + img_height + Inches(0.1),
+                        width=img_width,
+                        height=Inches(0.3)
+                    )
+                    caption_frame = caption.text_frame
+                    caption_frame.text = caption_text
+                    caption_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+                    caption_frame.paragraphs[0].font.size = Pt(10)
+                    caption_frame.paragraphs[0].font.italic = True
+                    print(f"Added caption: {caption_text}")
+                    
+                except Exception as e:
+                    print(f"Error adding mapped PDF image {img_file}: {str(e)}")
+                    traceback.print_exc()
+    
+    # Add any unmapped images at the end
+    remaining_images = unmapped_images + [img for page_images in pdf_images.values() for img in page_images if img not in used_images]
+    if remaining_images:
+        print(f"\nAdding {len(remaining_images)} unmapped/unused images...")
+        for i in range(0, len(remaining_images), 2):
+            # Create a new slide for images
+            image_slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
+            
+            # Add title
+            title_box = image_slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
+            title_frame = title_box.text_frame
+            title_frame.text = f"Additional Images - Part {i//2 + 1}"
+            title_frame.paragraphs[0].font.size = Pt(32)
+            title_frame.paragraphs[0].font.bold = True
+            
+            # Get current batch of images (up to 2)
+            current_images = remaining_images[i:i+2]
+            
+            # Calculate layout
+            if len(current_images) == 1:
+                img_width = Inches(8)
+                img_height = Inches(4.5)
+                left = Inches(1)
+                top = Inches(1.5)
+            else:
+                img_width = Inches(4)
+                img_height = Inches(3)
+                images_per_row = 2
+            
+            # Add images
+            for idx, img_file in enumerate(current_images):
+                try:
+                    image_path = os.path.join(images_dir, img_file)
+                    print(f"Adding unmapped image: {image_path}")
+                    
+                    if len(current_images) > 1:
+                        row = idx // images_per_row
+                        col = idx % images_per_row
+                        left = Inches(1 + col * 4.5)
+                        top = Inches(1.5 + row * 3.5)
+                    
+                    # Add image
+                    pic = image_slide.shapes.add_picture(
+                        image_path,
+                        left=left,
+                        top=top,
+                        width=img_width,
+                        height=img_height
+                    )
+                    
+                    # Get image title from image_titles.txt if available
+                    titles_file = os.path.join('extract', 'image_titles.txt')
+                    caption_text = None
+                    if os.path.exists(titles_file):
+                        with open(titles_file, 'r', encoding='utf-8') as f:
+                            for line in f:
+                                if img_file.split('.')[0] in line:
+                                    caption_text = line.split('|')[1].strip()
+                                    break
+                    
+                    if not caption_text:
+                        caption_text = f"Additional Figure {i + idx + 1}"
+                    
+                    # Add caption
+                    caption = image_slide.shapes.add_textbox(
+                        left=left,
+                        top=top + img_height + Inches(0.1),
+                        width=img_width,
+                        height=Inches(0.3)
+                    )
+                    caption_frame = caption.text_frame
+                    caption_frame.text = caption_text
+                    caption_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+                    caption_frame.paragraphs[0].font.size = Pt(10)
+                    caption_frame.paragraphs[0].font.italic = True
+                    print(f"Added caption: {caption_text}")
+                    
+                except Exception as e:
+                    print(f"Error adding unmapped image {img_file}: {str(e)}")
+                    traceback.print_exc()
     
     # Save the presentation
     if os.path.isdir(output_dir):
@@ -832,7 +843,6 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
         print(f"Successfully saved presentation with theme {theme_key}")
     except Exception as e:
         print(f"Error saving presentation: {str(e)}")
-        import traceback
         traceback.print_exc()
         try:
             print("Attempting to save without theme...")
