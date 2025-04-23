@@ -508,31 +508,33 @@ def generate_from_topic():
         )
         
         if ppt_path and os.path.exists(ppt_path):
-            # Create a zip file containing both the PowerPoint and quiz (if generated)
-            zip_filename = f"topic_{topic.replace(' ', '_')[:30]}_package.zip"
-            zip_path = os.path.join(output_dir, zip_filename)
-            
-            print("\nCreating zip file...")
-            print(f"PowerPoint path: {ppt_path}")
-            print(f"Quiz file path: {quiz_file}")
-            
-            with zipfile.ZipFile(zip_path, 'w') as zipf:
-                # Add PowerPoint file
-                print("Adding PowerPoint to zip...")
-                zipf.write(ppt_path, os.path.basename(ppt_path))
+            # Create a zip file only if quiz is included
+            if include_quiz and quiz_file and os.path.exists(quiz_file):
+                zip_filename = f"topic_{topic.replace(' ', '_')[:30]}_package.zip"
+                zip_path = os.path.join(output_dir, zip_filename)
                 
-                # Add quiz file if it exists
-                if quiz_file and os.path.exists(quiz_file):
+                print("\nCreating zip file with PowerPoint and quiz...")
+                print(f"PowerPoint path: {ppt_path}")
+                print(f"Quiz file path: {quiz_file}")
+                
+                with zipfile.ZipFile(zip_path, 'w') as zipf:
+                    # Add PowerPoint file
+                    print("Adding PowerPoint to zip...")
+                    zipf.write(ppt_path, os.path.basename(ppt_path))
+                    
+                    # Add quiz file
                     print("Adding quiz file to zip...")
                     zipf.write(quiz_file, 'quiz_questions.txt')
-                else:
-                    print("Quiz file not found or not generated")
-            
-            print(f"Zip file created at: {zip_path}")
-            print(f"Zip file size: {os.path.getsize(zip_path)}")
-            
-            # Send the zip file
-            response = send_file(zip_path, as_attachment=True)
+                
+                print(f"Zip file created at: {zip_path}")
+                print(f"Zip file size: {os.path.getsize(zip_path)}")
+                
+                # Send the zip file
+                response = send_file(zip_path, as_attachment=True)
+            else:
+                # If no quiz, just send the PowerPoint file
+                print("\nSending PowerPoint file directly...")
+                response = send_file(ppt_path, as_attachment=True)
             
             # Clean up after successful generation and sending
             cleanup_folders()
