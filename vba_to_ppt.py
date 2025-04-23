@@ -174,7 +174,7 @@ def create_image_slide(prs, images_dir, page_number):
         return None
 
     print(f"Found {len(slide_images)} images for page {page_number}")
-    
+
     # Get image titles from the titles file
     image_titles = get_image_titles()
     
@@ -209,8 +209,8 @@ def create_image_slide(prs, images_dir, page_number):
             img_key = f"page_{page_number}_img_{img_index}"
             
         if img_key and img_key in image_titles:
-            title_text = image_titles[img_key]
-            break
+                title_text = image_titles[img_key]
+                break
     
     # Add the title to the slide
     title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
@@ -247,7 +247,7 @@ def create_image_slide(prs, images_dir, page_number):
             if not os.path.exists(image_path):
                 print(f"Image file not found: {image_path}")
                 continue
-                
+            
             # Add the image
             pic = slide.shapes.add_picture(
                 image_path,
@@ -269,15 +269,15 @@ def create_image_slide(prs, images_dir, page_number):
             elif 'web_img_' in image_file:
                 img_index = re.search(r'web_img_\d+_(\d+)', image_file).group(1)
                 img_key = f"page_{page_number}_img_{img_index}"
-            
+                
             # Set caption text
             caption_text = f"Figure {idx+1}"
             if img_key and img_key in image_titles:
                 caption_text = image_titles[img_key]
-            
+                
             # Add caption
             caption = slide.shapes.add_textbox(
-                left=left,
+                left=left, 
                 top=top + img_height + Inches(0.1),
                 width=img_width,
                 height=Inches(0.5)
@@ -590,16 +590,15 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
         if subtitle:
             subtitle.text = f"Created by: {creator_name}"
         else:
-            left = Inches(1)
-            top = Inches(4)
+            left = Inches(7)
+            top = Inches(4.5)  # Changed from Inches(2) to Inches(1.5) to be directly below title
             width = Inches(8)
             height = Inches(1)
             
             textbox = slide.shapes.add_textbox(left, top, width, height)
             textbox.text_frame.text = f"Created by: {creator_name}"
-            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-            textbox.text_frame.paragraphs[0].font.size = Pt(18)
-            textbox.text_frame.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+            textbox.text_frame.paragraphs[0].font.size = Pt(18)  # Added font size
+            textbox.text_frame.paragraphs[0].font.italic = True  # Added italic style
     
     # Create index slide (second slide)
     print("\nCreating index slide...")
@@ -629,6 +628,16 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
     unmapped_images = []  # List to store all images that can't be mapped
     used_images = set()  # Keep track of which images have been used
     
+    # Read image titles for better mapping
+    image_titles = {}
+    titles_file = os.path.join('extract', 'image_titles.txt')
+    if os.path.exists(titles_file):
+        with open(titles_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                if '|' in line:
+                    img_key, title = line.strip().split('|', 1)
+                    image_titles[img_key] = title.strip()
+    
     if os.path.exists(images_dir):
         try:
             for img_file in os.listdir(images_dir):
@@ -637,7 +646,7 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                     pdf_match = re.search(r'page_(\d+)_img_(\d+)', img_file)
                     if pdf_match:
                         page_num = int(pdf_match.group(1))
-                        # Only map images to valid slide numbers
+                        # Only map images to valid slide numbers (excluding title and index slides)
                         if 3 <= page_num <= len(slides_data) + 2:  # +2 for title and index slides
                             if page_num not in pdf_images:
                                 pdf_images[page_num] = []
@@ -652,9 +661,30 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
             print(f"Error processing images directory: {str(e)}")
             traceback.print_exc()
 
+    # Function to calculate content similarity between image and slide
+    def calculate_content_similarity(img_title, slide_title, slide_content):
+        if not img_title or not slide_title:
+            return 0
+        
+        # Convert to lowercase for comparison
+        img_title = img_title.lower()
+        slide_title = slide_title.lower()
+        slide_content = slide_content.lower() if isinstance(slide_content, str) else ' '.join(slide_content).lower()
+        
+        # Split into words
+        img_words = set(img_title.split())
+        slide_words = set(slide_title.split() + slide_content.split())
+        
+        # Calculate word overlap
+        common_words = img_words.intersection(slide_words)
+        if not img_words:
+            return 0
+        
+        return len(common_words) / len(img_words)
+
     # Create content slides with their mapped PDF images
     print("\nCreating content slides...")
-    for slide_num, slide_data in enumerate(slides_data[2:], start=3):
+    for slide_num, slide_data in enumerate(slides_data[2:], start=3):  # Start from index 2 to skip title and index slides
         print(f"\nProcessing slide {slide_num}...")
         slide_title = slide_data['title']
         
@@ -674,7 +704,7 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
         if slide_num in pdf_images and pdf_images[slide_num]:
             print(f"Adding {len(pdf_images[slide_num])} PDF images for slide {slide_num}")
             
-            # Create image slide
+            # Create image slide immediately after the content slide
             image_slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
             
             # Add title
@@ -700,13 +730,13 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                 try:
                     image_path = os.path.join(images_dir, img_file)
                     print(f"Adding mapped PDF image: {image_path}")
-                    
+                            
                     if len(pdf_images[slide_num]) > 1:
                         row = idx // images_per_row
                         col = idx % images_per_row
                         left = Inches(1 + col * 4.5)
                         top = Inches(1.5 + row * 3.5)
-                    
+                                
                     # Add image
                     pic = image_slide.shapes.add_picture(
                         image_path,
@@ -726,7 +756,7 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                                 if img_file.split('.')[0] in line:
                                     caption_text = line.split('|')[1].strip()
                                     break
-                    
+                            
                     if not caption_text:
                         caption_text = f"Figure {idx + 1}"
                     
@@ -743,31 +773,58 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                     caption_frame.paragraphs[0].font.size = Pt(10)
                     caption_frame.paragraphs[0].font.italic = True
                     print(f"Added caption: {caption_text}")
-                    
+                            
                 except Exception as e:
                     print(f"Error adding mapped PDF image {img_file}: {str(e)}")
                     traceback.print_exc()
     
-    # Add any unmapped images at the end
+    # Try to map remaining images to relevant slides
     remaining_images = unmapped_images + [img for page_images in pdf_images.values() for img in page_images if img not in used_images]
     if remaining_images:
-        print(f"\nAdding {len(remaining_images)} unmapped/unused images...")
-        for i in range(0, len(remaining_images), 2):
-            # Create a new slide for images
+        print(f"\nAttempting to map {len(remaining_images)} remaining images to relevant slides...")
+        
+        # Create a mapping of images to their best matching slides
+        image_slide_mapping = {}
+        for img_file in remaining_images:
+            best_similarity = 0
+            best_slide_num = None
+            
+            # Get image title
+            img_title = None
+            img_key = img_file.split('.')[0]
+            if img_key in image_titles:
+                img_title = image_titles[img_key]
+            
+            # Find best matching slide (excluding title and index slides)
+            for slide_num, slide_data in enumerate(slides_data[2:], start=3):  # Start from index 2 to skip title and index slides
+                similarity = calculate_content_similarity(img_title, slide_data['title'], slide_data['content'])
+                if similarity > best_similarity:
+                    best_similarity = similarity
+                    best_slide_num = slide_num
+            
+            # Only map if similarity is above threshold
+            if best_similarity > 0.2:  # Adjust threshold as needed
+                if best_slide_num not in image_slide_mapping:
+                    image_slide_mapping[best_slide_num] = []
+                image_slide_mapping[best_slide_num].append(img_file)
+                print(f"Mapped image {img_file} to slide {best_slide_num} with similarity {best_similarity:.2f}")
+        
+        # Add mapped images to their respective slides
+        for slide_num, images in image_slide_mapping.items():
+            print(f"\nAdding {len(images)} mapped images to slide {slide_num}")
+            
+            # Create image slide after the content slide
             image_slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
             
             # Add title
             title_box = image_slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
             title_frame = title_box.text_frame
-            title_frame.text = f"Additional Images - Part {i//2 + 1}"
+            title_frame.text = f"{slides_data[slide_num-2]['title']} - Additional Visual Content"
             title_frame.paragraphs[0].font.size = Pt(32)
             title_frame.paragraphs[0].font.bold = True
             
-            # Get current batch of images (up to 2)
-            current_images = remaining_images[i:i+2]
-            
             # Calculate layout
-            if len(current_images) == 1:
+            if len(images) == 1:
                 img_width = Inches(8)
                 img_height = Inches(4.5)
                 left = Inches(1)
@@ -778,12 +835,12 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                 images_per_row = 2
             
             # Add images
-            for idx, img_file in enumerate(current_images):
+            for idx, img_file in enumerate(sorted(images)):
                 try:
                     image_path = os.path.join(images_dir, img_file)
-                    print(f"Adding unmapped image: {image_path}")
+                    print(f"Adding mapped image: {image_path}")
                     
-                    if len(current_images) > 1:
+                    if len(images) > 1:
                         row = idx // images_per_row
                         col = idx % images_per_row
                         left = Inches(1 + col * 4.5)
@@ -797,19 +854,16 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                         width=img_width,
                         height=img_height
                     )
+                    used_images.add(img_file)
                     
-                    # Get image title from image_titles.txt if available
-                    titles_file = os.path.join('extract', 'image_titles.txt')
+                    # Get image title
                     caption_text = None
-                    if os.path.exists(titles_file):
-                        with open(titles_file, 'r', encoding='utf-8') as f:
-                            for line in f:
-                                if img_file.split('.')[0] in line:
-                                    caption_text = line.split('|')[1].strip()
-                                    break
+                    img_key = img_file.split('.')[0]
+                    if img_key in image_titles:
+                        caption_text = image_titles[img_key]
                     
                     if not caption_text:
-                        caption_text = f"Additional Figure {i + idx + 1}"
+                        caption_text = f"Additional Figure {idx + 1}"
                     
                     # Add caption
                     caption = image_slide.shapes.add_textbox(
@@ -826,8 +880,85 @@ def create_powerpoint(slides_data, output_dir, theme_key='theme1', creator_name=
                     print(f"Added caption: {caption_text}")
                     
                 except Exception as e:
-                    print(f"Error adding unmapped image {img_file}: {str(e)}")
+                    print(f"Error adding mapped image {img_file}: {str(e)}")
                     traceback.print_exc()
+        
+        # Add any remaining unmapped images at the end
+        final_unmapped = [img for img in remaining_images if img not in used_images]
+        if final_unmapped:
+            print(f"\nAdding {len(final_unmapped)} completely unmapped images...")
+            for i in range(0, len(final_unmapped), 2):
+                # Create a new slide for images
+                image_slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
+                
+                # Add title
+                title_box = image_slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
+                title_frame = title_box.text_frame
+                title_frame.text = f"Additional Images - Part {i//2 + 1}"
+                title_frame.paragraphs[0].font.size = Pt(32)
+                title_frame.paragraphs[0].font.bold = True
+                
+                # Get current batch of images (up to 2)
+                current_images = final_unmapped[i:i+2]
+                
+                # Calculate layout
+                if len(current_images) == 1:
+                    img_width = Inches(8)
+                    img_height = Inches(4.5)
+                    left = Inches(1)
+                    top = Inches(1.5)
+                else:
+                    img_width = Inches(4)
+                    img_height = Inches(3)
+                    images_per_row = 2
+                
+                # Add images
+                for idx, img_file in enumerate(current_images):
+                    try:
+                        image_path = os.path.join(images_dir, img_file)
+                        print(f"Adding unmapped image: {image_path}")
+                        
+                        if len(current_images) > 1:
+                            row = idx // images_per_row
+                            col = idx % images_per_row
+                            left = Inches(1 + col * 4.5)
+                            top = Inches(1.5 + row * 3.5)
+                        
+                        # Add image
+                        pic = image_slide.shapes.add_picture(
+                            image_path,
+                            left=left,
+                            top=top,
+                            width=img_width,
+                            height=img_height
+                        )
+                        
+                        # Get image title
+                        caption_text = None
+                        img_key = img_file.split('.')[0]
+                        if img_key in image_titles:
+                            caption_text = image_titles[img_key]
+                        
+                        if not caption_text:
+                            caption_text = f"Additional Figure {i + idx + 1}"
+                        
+                        # Add caption
+                        caption = image_slide.shapes.add_textbox(
+                            left=left,
+                            top=top + img_height + Inches(0.1),
+                            width=img_width,
+                            height=Inches(0.3)
+                        )
+                        caption_frame = caption.text_frame
+                        caption_frame.text = caption_text
+                        caption_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+                        caption_frame.paragraphs[0].font.size = Pt(10)
+                        caption_frame.paragraphs[0].font.italic = True
+                        print(f"Added caption: {caption_text}")
+                        
+                    except Exception as e:
+                        print(f"Error adding unmapped image {img_file}: {str(e)}")
+                        traceback.print_exc()
     
     # Save the presentation
     if os.path.isdir(output_dir):

@@ -11,14 +11,14 @@ Sub CreatePresentation()
 
     ' Add title slide
     Set sld = ppt.Slides.Add(1, ppLayoutTitle)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Unveiling the Power of Neural Networks: A Deep Dive"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Huffman Coding: Data Compression Through Efficiency"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     
     ' Add creator name if provided
     If sld.Shapes.HasTitle Then
         Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 400, 600, 50)
         Set tf = shp.TextFrame
-        tf.TextRange.Text = "Created by: "
+        tf.TextRange.Text = "Created by: Shubham"
         tf.TextRange.Font.Size = 14
         tf.TextRange.Font.Color.RGB = RGB(128, 128, 128)  ' Gray color
         tf.HorizontalAlignment = ppAlignCenter
@@ -47,7 +47,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Introduction to Neural Networks"
+    para.Text = "Introduction to Huffman Coding"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -65,7 +65,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The Biological Inspiration: Neurons and Synapses"
+    para.Text = "How Huffman Coding Works: A Conceptual Overview"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -83,7 +83,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Architecture of a Neural Network: Layers and Connections"
+    para.Text = "Huffman Tree Construction: Building the Foundation"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -101,7 +101,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Types of Neural Networks"
+    para.Text = "Huffman Coding Algorithm & Code Generation"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -119,7 +119,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Training a Neural Network: Backpropagation"
+    para.Text = "Prefix Codes and Ambiguity Avoidance"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -137,7 +137,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Applications of Neural Networks"
+    para.Text = "Decoding Huffman Codes and Example Comparison"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -155,43 +155,7 @@ Sub CreatePresentation()
     
     ' Add title on next line
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Advantages and Disadvantages of Neural Networks"
-    para.ParagraphFormat.Bullet.Visible = False
-    para.Font.Size = 14
-    para.ParagraphFormat.LeftIndent = 20
-    para.ParagraphFormat.SpaceAfter = 12
-    para.ParagraphFormat.SpaceBefore = 0
-
-    ' Add number
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "8."
-    para.ParagraphFormat.Bullet.Visible = False
-    para.Font.Bold = True
-    para.Font.Size = 14
-    para.ParagraphFormat.SpaceAfter = 0
-    para.ParagraphFormat.SpaceBefore = 6
-    
-    ' Add title on next line
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The Future of Neural Networks"
-    para.ParagraphFormat.Bullet.Visible = False
-    para.Font.Size = 14
-    para.ParagraphFormat.LeftIndent = 20
-    para.ParagraphFormat.SpaceAfter = 12
-    para.ParagraphFormat.SpaceBefore = 0
-
-    ' Add number
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "9."
-    para.ParagraphFormat.Bullet.Visible = False
-    para.Font.Bold = True
-    para.Font.Size = 14
-    para.ParagraphFormat.SpaceAfter = 0
-    para.ParagraphFormat.SpaceBefore = 6
-    
-    ' Add title on next line
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Conclusion: Key Takeaways and Future Directions"
+    para.Text = "Conclusion: Efficiency and Applications of Huffman Coding"
     para.ParagraphFormat.Bullet.Visible = False
     para.Font.Size = 14
     para.ParagraphFormat.LeftIndent = 20
@@ -212,7 +176,7 @@ Sub CreatePresentation()
 
     ' Add slide 3
     Set sld = ppt.Slides.Add(3, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Introduction to Neural Networks"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Introduction to Huffman Coding"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -220,38 +184,44 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "What are Neural Networks?"
+    para.Text = "Data compression technique reducing file size without information loss."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "A brief history of neural networks."
+    para.Text = "Developed by David A. Huffman."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The concept of artificial intelligence and machine learning."
+    para.Text = "Exploits character frequency in data for optimal encoding."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Neural networks as a subset of machine learning."
+    para.Text = "Most effective for text with repetitive characters."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Simple analogy to explain the basic function."
+    para.Text = "Reduces storage space and transmission time."
+    para.ParagraphFormat.Bullet.Visible = True
+    para.ParagraphFormat.Bullet.RelativeSize = 1
+    para.Font.Size = 14
+
+    Set para = tf.TextRange.Paragraphs.Add
+    para.Text = "Foundation for many modern compression algorithms."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 4
     Set sld = ppt.Slides.Add(4, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "The Biological Inspiration: Neurons and Synapses"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "How Huffman Coding Works: A Conceptual Overview"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -259,38 +229,44 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Biological neurons and their function."
+    para.Text = "Assigns shorter codes to frequently occurring characters."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Synapses and signal transmission."
+    para.Text = "Longer codes to less frequent characters."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The connection to artificial neural networks."
+    para.Text = "Achieves optimal compression by minimizing the average code length."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "How the brain's parallel processing inspires NN design."
+    para.Text = "Uses a binary tree structure (Huffman tree) for encoding and decoding."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Limitations of the biological analogy."
+    para.Text = "Requires a pre-processing step to determine character frequencies."
+    para.ParagraphFormat.Bullet.Visible = True
+    para.ParagraphFormat.Bullet.RelativeSize = 1
+    para.Font.Size = 14
+
+    Set para = tf.TextRange.Paragraphs.Add
+    para.Text = "Encoded data needs the Huffman tree for successful decoding."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 5
     Set sld = ppt.Slides.Add(5, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Architecture of a Neural Network: Layers and Connections"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Huffman Tree Construction: Building the Foundation"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -298,38 +274,44 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Input layer: Receiving data."
+    para.Text = "Calculate the frequency of each unique character in the input data."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Hidden layers: Processing information."
+    para.Text = "Create a min-heap data structure to store characters and their frequencies."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Output layer: Producing results."
+    para.Text = "Repeatedly extract the two nodes with the lowest frequencies."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Weights and biases: Adjusting the network's behavior."
+    para.Text = "Create a new node, combining the two extracted nodes as children."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Activation functions: Introducing non-linearity."
+    para.Text = "Assign the sum of their frequencies as the new node's frequency."
+    para.ParagraphFormat.Bullet.Visible = True
+    para.ParagraphFormat.Bullet.RelativeSize = 1
+    para.Font.Size = 14
+
+    Set para = tf.TextRange.Paragraphs.Add
+    para.Text = "Repeat until only one node (the root) remains."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 6
     Set sld = ppt.Slides.Add(6, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Types of Neural Networks"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Huffman Coding Algorithm & Code Generation"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -337,38 +319,44 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Perceptrons: The simplest form."
+    para.Text = "Traverse the Huffman tree from the root to each leaf node."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Multilayer Perceptrons (MLPs): Deeper networks."
+    para.Text = "Assign '0' to the left branch and '1' to the right branch."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Convolutional Neural Networks (CNNs): For image processing."
+    para.Text = "The sequence of 0s and 1s along the path from the root to a leaf node forms the Huffman code for that character."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Recurrent Neural Networks (RNNs): For sequential data."
+    para.Text = "The codes are prefix-free (no code is a prefix of another)."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Long Short-Term Memory (LSTM) networks:  Advanced RNNs for long sequences."
+    para.Text = "This ensures unambiguous decoding."
+    para.ParagraphFormat.Bullet.Visible = True
+    para.ParagraphFormat.Bullet.RelativeSize = 1
+    para.Font.Size = 14
+
+    Set para = tf.TextRange.Paragraphs.Add
+    para.Text = "The codes are variable-length, optimizing compression."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 7
     Set sld = ppt.Slides.Add(7, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Training a Neural Network: Backpropagation"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Prefix Codes and Ambiguity Avoidance"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -376,38 +364,38 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The concept of supervised learning."
+    para.Text = "Huffman codes are prefix-free, meaning no code is a prefix of another."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Forward propagation: Calculating the output."
+    para.Text = "This prevents ambiguity during decoding."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Backpropagation: Calculating the error."
+    para.Text = "The tree structure ensures that any code sequence can be uniquely decoded."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Gradient descent: Adjusting weights and biases."
+    para.Text = "This property is crucial for lossless data compression."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Loss functions: Measuring the error."
+    para.Text = "Avoids the need for delimiters between codes."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 8
     Set sld = ppt.Slides.Add(8, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Applications of Neural Networks"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Decoding Huffman Codes and Example Comparison"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -415,38 +403,44 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Image recognition and classification."
+    para.Text = "Use the Huffman tree and the encoded data."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Natural language processing (NLP)."
+    para.Text = "Start at the root of the tree."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Speech recognition."
+    para.Text = "Follow the path indicated by the encoded bits (0 for left, 1 for right)."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Self-driving cars."
+    para.Text = "When a leaf node is reached, output the corresponding character."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Medical diagnosis."
+    para.Text = "Repeat until all encoded bits are processed."
+    para.ParagraphFormat.Bullet.Visible = True
+    para.ParagraphFormat.Bullet.RelativeSize = 1
+    para.Font.Size = 14
+
+    Set para = tf.TextRange.Paragraphs.Add
+    para.Text = "Example: Compare original data size vs. Huffman-coded data size to demonstrate compression."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     ' Add slide 9
     Set sld = ppt.Slides.Add(9, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Advantages and Disadvantages of Neural Networks"
+    sld.Shapes.Title.TextFrame.TextRange.Text = "Conclusion: Efficiency and Applications of Huffman Coding"
     sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
     Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
     Set tf = shp.TextFrame
@@ -454,109 +448,31 @@ Sub CreatePresentation()
     tf.AutoSize = ppAutoSizeShapeToFitText
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Advantages: Powerful pattern recognition, adaptability, scalability."
+    para.Text = "Huffman coding provides efficient lossless data compression."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Disadvantages: Black box nature, data dependency, computational cost, overfitting."
+    para.Text = "Widely used in various applications like data archiving, text compression, and image compression (as a component of more complex algorithms)."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Addressing limitations through techniques like regularization and dropout."
+    para.Text = "Its effectiveness depends on the frequency distribution of the input data."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "The need for large datasets."
+    para.Text = "Limitations: Overhead from storing the Huffman tree.  Better suited for large datasets."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14
 
     Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Computational resource requirements."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    ' Add slide 10
-    Set sld = ppt.Slides.Add(10, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "The Future of Neural Networks"
-    sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
-    Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
-    Set tf = shp.TextFrame
-    tf.WordWrap = True
-    tf.AutoSize = ppAutoSizeShapeToFitText
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Advancements in deep learning."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "New architectures and algorithms."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Ethical considerations and responsible AI."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Potential breakthroughs in various fields."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Ongoing research and development."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    ' Add slide 11
-    Set sld = ppt.Slides.Add(11, ppLayoutText)
-    sld.Shapes.Title.TextFrame.TextRange.Text = "Conclusion: Key Takeaways and Future Directions"
-    sld.Shapes.Title.TextFrame.TextRange.Font.Color.RGB = RGB(0, 0, 0)
-    Set shp = sld.Shapes.AddTextbox(msoTextOrientationHorizontal, 50, 50, 600, 400)
-    Set tf = shp.TextFrame
-    tf.WordWrap = True
-    tf.AutoSize = ppAutoSizeShapeToFitText
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Summary of key concepts covered."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Recap of the advantages and limitations."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Emphasis on the transformative potential of neural networks."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Call to action: Further exploration and learning."
-    para.ParagraphFormat.Bullet.Visible = True
-    para.ParagraphFormat.Bullet.RelativeSize = 1
-    para.Font.Size = 14
-
-    Set para = tf.TextRange.Paragraphs.Add
-    para.Text = "Q&A session."
+    para.Text = "Future developments continue to build upon its core principles."
     para.ParagraphFormat.Bullet.Visible = True
     para.ParagraphFormat.Bullet.RelativeSize = 1
     para.Font.Size = 14

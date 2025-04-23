@@ -76,197 +76,126 @@ def cleanup_folders():
         print(f"Error during cleanup: {str(e)}")
         traceback.print_exc()
 
-def fetch_images_for_topic(topic, slide_titles, num_images=4):
-    """Fetch relevant images for the topic and slides from web search"""
+def fetch_images_for_topic(topic, slide_titles, num_images=2):
+    """Fetch relevant images for the given topic and slide titles."""
     try:
-        print(f"\nStarting image fetch for topic: {topic}")
-        images_dir = os.path.join(app.config['EXTRACT_FOLDER'], 'images')
+        # Create directory for images if it doesn't exist
+        images_dir = os.path.join('extract', 'images')
         os.makedirs(images_dir, exist_ok=True)
-        print(f"Images will be saved to: {images_dir}")
         
-        # Create image_titles.txt file
-        titles_file = os.path.join(app.config['EXTRACT_FOLDER'], 'image_titles.txt')
-        print(f"Image titles will be saved to: {titles_file}")
+        # Create a file to store image titles
+        titles_file = os.path.join('extract', 'image_titles.txt')
         
-        # List to keep track of saved images
-        saved_images = []
-        image_titles = {}
-        
-        # Generate search terms from slide titles
+        # Generate one search term per slide title, skipping slide 0 (title slide)
         search_terms = []
+        generic_terms = ['challenges', 'limitations', 'future', 'conclusion', 'key takeaways', 'applications']
         
-        # Process slide titles to create meaningful search terms
-        if slide_titles:
-            for title in slide_titles:
-                # Skip generic slides
-                if any(term in title.lower() for term in ["agenda", "overview", "conclusion", "summary", "thank you", "key concept", "index"]):
-                    continue
+        for i, title in enumerate(slide_titles):
+            # Skip slide 0 (title slide) and generic terms
+            if i == 0 or title.lower() in ['agenda', 'summary', 'thank you', 'questions', 'index']:
+                continue
+            
+            # Check if the title contains generic terms and doesn't mention the topic
+            title_lower = title.lower()
+            is_generic = any(term in title_lower for term in generic_terms)
+            topic_in_title = any(word in title_lower for word in topic.lower().split())
+            
+            # If title is generic and doesn't contain the topic, append the topic
+            if is_generic and not topic_in_title:
+                search_term = f"{title} of {topic}"
+            else:
+                search_term = title
                 
-                # Clean and enhance the title for search
-                clean_title = title.strip()
-                if clean_title:
-                    # Remove common suffixes after colon or hyphen
-                    if ':' in clean_title:
-                        clean_title = clean_title.split(':')[0].strip()
-                    if '-' in clean_title:
-                        clean_title = clean_title.split('-')[0].strip()
-                    
-                    # Remove common words and phrases that don't add to the search
-                    words_to_remove = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'key', 'concept', 'index', 'unveiling', 'power']
-                    phrases_to_remove = ['unveiling power', 'unveiling the power']
-                    
-                    # Remove phrases first
-                    for phrase in phrases_to_remove:
-                        clean_title = clean_title.lower().replace(phrase, '').strip()
-                    
-                    # Then remove individual words
-                    title_words = clean_title.split()
-                    filtered_words = [word for word in title_words if word.lower() not in words_to_remove]
-                    
-                    if filtered_words:
-                        # Join the remaining words to form the search term
-                        search_term = ' '.join(filtered_words)
-                        if len(search_term.split()) > 1:  # Only add if more than one word
-                            search_terms.append(search_term)
-                            print(f"Added search term from title: {search_term}")
+            search_terms.append(search_term)
         
-        # Add main topic if not already covered
-        if topic.lower() not in [term.lower() for term in search_terms]:
-            # Clean the topic the same way
-            clean_topic = topic.lower()
-            for phrase in phrases_to_remove:
-                clean_topic = clean_topic.replace(phrase, '').strip()
-            
-            topic_words = clean_topic.split()
-            filtered_topic = ' '.join([word for word in topic_words if word.lower() not in words_to_remove])
-            
-            if filtered_topic and len(filtered_topic.split()) > 1:
-                search_terms.append(filtered_topic)
-                print(f"Added main topic search term: {filtered_topic}")
+        # Add the main topic as one search term
+        search_terms.append(topic)
         
         # Remove duplicates while preserving order
-        search_terms = list(dict.fromkeys(search_terms))
+        seen = set()
+        search_terms = [x for x in search_terms if not (x in seen or seen.add(x))]
         
         # Limit the number of search terms
-        search_terms = search_terms[:num_images]
-        print(f"\nWill search for {len(search_terms)} terms to get {num_images} images")
-
-        # Check if API credentials are available
-        api_key = os.getenv('GOOGLE_API_KEY')
-        cx = os.getenv('GOOGLE_CX')
+        max_terms = min(len(search_terms), num_images * 2)
+        search_terms = search_terms[:max_terms]
         
-        if not api_key or not cx:
-            print("Error: Google API credentials not found in environment variables")
-            return []
-
-        print(f"Using Google API Key: {api_key[:10]}... and CX: {cx}")
+        print(f"Generated {len(search_terms)} search terms: {search_terms}")
         
+        # Initialize Google Images Search
         try:
-            # Initialize Google Images Search
-            gis = GoogleImagesSearch(api_key, cx)
-            print("Successfully initialized Google Images Search")
-        except Exception as init_error:
-            print(f"Error initializing Google Images Search: {str(init_error)}")
-            return []
-
-        # Define base search params
-        search_params = {
-            'q': '',  # Will be updated for each search
-            'num': 2,  # Number of images per search term
-            'safe': 'active',  # Use 'active' instead of 'high'
-            'fileType': 'jpg|png',
-            'imgType': 'photo',
-            'imgSize': 'large',
-            'searchType': 'image'  # Explicitly specify image search
-        }
+            api_key = os.getenv('GOOGLE_API_KEY')
+            cx = os.getenv('GOOGLE_CX')
+            
+            if not api_key or not cx:
+                print("Google API credentials not found in environment variables")
+                return
+            
+            from googleapiclient.discovery import build
+            service = build("customsearch", "v1", developerKey=api_key)
+            
+        except Exception as e:
+            print(f"Error initializing Google Images Search: {str(e)}")
+            return
         
-        for idx, search_term in enumerate(search_terms):
-            if len(saved_images) >= num_images:
-                print(f"\nReached desired number of images ({num_images})")
+        # Track downloaded images
+        downloaded_images = []
+        
+        # Try each search term
+        for term in search_terms:
+            if len(downloaded_images) >= num_images:
                 break
                 
+            print(f"\nSearching for images with term: {term}")
+            
             try:
-                print(f"\nProcessing search term {idx + 1}/{len(search_terms)}: {search_term}")
+                # Perform the search
+                result = service.cse().list(
+                    q=term,
+                    cx=cx,
+                    searchType='image',
+                    safe='active',
+                    num=1  # Get one image per term
+                ).execute()
                 
-                # Update search query
-                search_params['q'] = search_term
-                print(f"Search parameters: {search_params}")
-                
-                try:
-                    # Perform the search
-                    gis.search(search_params)
-                    results = list(gis.results())
-                    print(f"Found {len(results)} results for search term: {search_term}")
-                    
-                    if not results:
-                        print("No images found for this search term")
-                        continue
-                    
-                    # Process results
-                    for i, image in enumerate(results, 1):
+                if 'items' in result:
+                    for item in result['items']:
+                        if len(downloaded_images) >= num_images:
+                            break
+                            
+                        image_url = item['link']
+                        print(f"Found image URL: {image_url}")
+                        
                         try:
-                            print(f"Processing image {i} from {image.url}")
-                            
-                            # Download and save the image
-                            image_data = requests.get(image.url, timeout=10).content
-                            img = Image.open(BytesIO(image_data))
-                            
-                            # Generate filename
-                            page_num = idx + 1
-                            img_num = len(saved_images) + 1
-                            file_extension = '.jpg'
-                            image_filename = f"page_{page_num}_img_{img_num}{file_extension}"
-                            image_path = os.path.join(images_dir, image_filename)
-                            
-                            print(f"Saving image to: {image_path}")
-                            
-                            # Save image
-                            img.save(image_path, 'JPEG')
-                            
-                            # Verify the image was saved
-                            if os.path.exists(image_path):
-                                file_size = os.path.getsize(image_path)
-                                print(f"Image saved successfully. File size: {file_size} bytes")
-                                
-                                # Create image title key
-                                img_key = f"page_{page_num}_img_{img_num}"
-                                image_titles[img_key] = search_term
-                                saved_images.append(image_path)
-                                
-                                print(f"Added image title: {search_term}")
-                                
-                                if len(saved_images) >= num_images:
-                                    break
-                            else:
-                                print(f"Warning: Failed to save image to {image_path}")
-                                
-                        except Exception as img_error:
-                            print(f"Error saving image: {str(img_error)}")
-                            continue
-                            
-                except Exception as search_error:
-                    print(f"Error performing search: {str(search_error)}")
-                    continue
+                            # Download the image
+                            response = requests.get(image_url, timeout=10)
+                            if response.status_code == 200 and len(response.content) > 10000:  # Ensure it's a valid image (>10KB)
+                    # Generate a unique filename
+                                img_num = len(downloaded_images) + 1
+                                img_key = f"page_{img_num}_img_{img_num}"
+                                img_path = os.path.join(images_dir, f"{img_key}.jpg")
                     
-            except Exception as term_error:
-                print(f"Error processing search term '{search_term}': {str(term_error)}")
+                    # Save the image
+                                with open(img_path, 'wb') as f:
+                                    f.write(response.content)
+                    
+                                # Save the image title
+                                with open(titles_file, 'a', encoding='utf-8') as f:
+                                    f.write(f"{img_key}|{term}\n")
+                                
+                                downloaded_images.append(img_path)
+                                print(f"Successfully downloaded image: {img_path}")
+                                break  # Break after successful download
+                            
+                        except Exception as e:
+                            print(f"Error downloading image: {str(e)}")
+                            continue
+                
+            except Exception as e:
+                print(f"Error searching for term '{term}': {str(e)}")
                 continue
         
-        # Write image titles to file if we have saved images
-        if saved_images:
-            print(f"\nWriting {len(image_titles)} image titles to {titles_file}")
-            with open(titles_file, 'w', encoding='utf-8') as f:
-                for key, title in image_titles.items():
-                    f.write(f"{key}|{title}\n")
-            
-            print(f"\nSuccessfully saved {len(saved_images)} images for the presentation")
-            print("Saved images:")
-            for img in saved_images:
-                print(f"- {os.path.basename(img)}")
-        else:
-            print("\nNo images were successfully downloaded")
-            
-        return saved_images
+        print(f"\nDownloaded {len(downloaded_images)} images successfully")
+        return downloaded_images
     
     except Exception as e:
         print(f"Error in fetch_images_for_topic: {str(e)}")
