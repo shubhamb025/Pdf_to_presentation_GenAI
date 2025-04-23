@@ -5,13 +5,17 @@ import requests
 import uuid
 import urllib.parse
 from io import BytesIO
-from flask import Flask, render_template, request, send_file, url_for
+from flask import Flask, render_template, request, send_file, url_for, jsonify
 from werkzeug.utils import secure_filename
 import Text_extract
 import txt_to_vba
 import vba_to_ppt
 from google_images_search import GoogleImagesSearch
 from PIL import Image
+import zipfile
+import google.generativeai as genai
+import io
+from dotenv import load_dotenv
 
 app = Flask(__name__, static_folder='static')
 
@@ -246,6 +250,84 @@ def generate_topic_content(topic, details="", slide_count=8, presentation_rules=
     gemini_output = txt_to_vba.generate_outline_with_gemini(prompt, slide_count)
     return gemini_output
 
+def generate_quiz_questions(slides, topic):
+    """Generate quiz questions based on the presentation content."""
+    try:
+        print("\nStarting quiz generation...")
+        
+        # Create quiz directory if it doesn't exist
+        quiz_dir = os.path.join('extract', 'quiz')
+        os.makedirs(quiz_dir, exist_ok=True)
+        print(f"Created quiz directory: {quiz_dir}")
+        
+        # Configure the Gemini API
+        api_key = os.getenv('GOOGLE_API_KEY')
+        if not api_key:
+            print("Error: Google API key not found in environment variables")
+            return None
+        print("Found Google API key")
+            
+        genai.configure(api_key=api_key)
+        print("Configured Gemini API")
+        
+        # Prepare the prompt for quiz generation
+        prompt = f"""Generate 5 multiple choice questions to test understanding of this presentation about {topic}.
+        
+        Rules for questions:
+        1. Each question should test understanding of key concepts
+        2. Options should be meaningful and distinct
+        3. Include one correct answer and three plausible but incorrect options
+        4. Provide a brief explanation for why the correct answer is right
+        
+        Format EXACTLY as follows:
+
+        Q1. [Clear, specific question about a key concept]
+        a) [Correct answer - clear and complete]
+        b) [Plausible incorrect option]
+        c) [Plausible incorrect option]
+        d) [Plausible incorrect option]
+        Correct Answer: [a/b/c/d]
+        Explanation: [Brief explanation of why the correct answer is right]
+
+        [Repeat format for remaining questions]
+
+        Presentation Content:
+        """
+        
+        # Add slide content to the prompt
+        print("\nAdding slide content to prompt:")
+        for slide in slides:
+            prompt += f"\nSlide: {slide['title']}\n"
+            print(f"Processing slide: {slide['title']}")
+            if 'content' in slide:
+                if isinstance(slide['content'], list):
+                    for point in slide['content']:
+                        prompt += f"- {point}\n"
+                else:
+                    prompt += f"Content: {slide['content']}\n"
+        
+        # Generate quiz questions using Gemini
+        print("\nGenerating quiz questions using Gemini...")
+        model = genai.GenerativeModel('gemini-1.5-pro')
+        response = model.generate_content(prompt)
+        print("Received response from Gemini")
+        print(f"Response text length: {len(response.text)}")
+        
+        # Save quiz questions to file
+        quiz_file = os.path.join(quiz_dir, 'quiz_questions.txt')
+        print(f"\nSaving quiz to: {quiz_file}")
+        with open(quiz_file, 'w', encoding='utf-8') as f:
+            f.write(response.text)
+        print("Quiz file saved successfully")
+        print(f"Quiz file size: {os.path.getsize(quiz_file)}")
+        print(f"Quiz file exists: {os.path.exists(quiz_file)}")
+            
+        return quiz_file
+    except Exception as e:
+        print(f"\nError generating quiz questions: {str(e)}")
+        traceback.print_exc()
+        return None
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     # Create themes list with correct image paths
@@ -358,6 +440,7 @@ def generate_from_topic():
         details = request.form.get('details', '')
         theme_key = request.form.get('theme', 'theme1')
         creator_name = request.form.get('creator_name', '')
+        include_quiz = request.form.get('include_quiz', 'no') == 'yes'
         
         # Get slide count (default to 8 if not provided)
         try:
@@ -378,12 +461,7 @@ def generate_from_topic():
         print(f"Using theme: {theme_key}")
         print(f"Creator: {creator_name}")
         print(f"Slide count: {slide_count}")
-        if presentation_rules:
-            print(f"Presentation rules specified:")
-            for line in presentation_rules.strip().split('\n'):
-                print(f"  - {line.strip()}")
-        else:
-            print("No presentation rules specified, using default formatting")
+        print(f"Include quiz: {include_quiz}")
         
         # Ensure extract directory exists
         os.makedirs(app.config['EXTRACT_FOLDER'], exist_ok=True)
@@ -401,6 +479,16 @@ def generate_from_topic():
         
         # Fetch relevant images for the topic
         fetch_images_for_topic(topic, slide_titles, num_images=min(8, slide_count + 2))
+        
+        # Generate quiz questions if requested
+        quiz_file = None
+        if include_quiz:
+            print("\nQuiz generation requested...")
+            quiz_file = generate_quiz_questions(slides, topic)
+            print(f"Quiz file path returned: {quiz_file}")
+            if quiz_file:
+                print(f"Quiz file exists: {os.path.exists(quiz_file)}")
+                print(f"Quiz file size: {os.path.getsize(quiz_file) if os.path.exists(quiz_file) else 'N/A'}")
         
         # Save the VBA code
         with open('create_presentation.vba', 'w', encoding='utf-8') as f:
@@ -420,11 +508,35 @@ def generate_from_topic():
         )
         
         if ppt_path and os.path.exists(ppt_path):
-            # Clean up after successful PowerPoint generation
+            # Create a zip file containing both the PowerPoint and quiz (if generated)
+            zip_filename = f"topic_{topic.replace(' ', '_')[:30]}_package.zip"
+            zip_path = os.path.join(output_dir, zip_filename)
+            
+            print("\nCreating zip file...")
+            print(f"PowerPoint path: {ppt_path}")
+            print(f"Quiz file path: {quiz_file}")
+            
+            with zipfile.ZipFile(zip_path, 'w') as zipf:
+                # Add PowerPoint file
+                print("Adding PowerPoint to zip...")
+                zipf.write(ppt_path, os.path.basename(ppt_path))
+                
+                # Add quiz file if it exists
+                if quiz_file and os.path.exists(quiz_file):
+                    print("Adding quiz file to zip...")
+                    zipf.write(quiz_file, 'quiz_questions.txt')
+                else:
+                    print("Quiz file not found or not generated")
+            
+            print(f"Zip file created at: {zip_path}")
+            print(f"Zip file size: {os.path.getsize(zip_path)}")
+            
+            # Send the zip file
+            response = send_file(zip_path, as_attachment=True)
+            
+            # Clean up after successful generation and sending
             cleanup_folders()
             
-            # Send the file
-            response = send_file(ppt_path, as_attachment=True)
             return response
         else:
             raise FileNotFoundError(f"Generated PowerPoint file not found: {ppt_path}")
